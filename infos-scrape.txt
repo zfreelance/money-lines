@@ -1,0 +1,8 @@
+spread, Over/under, money line
+
+sites:
+app.hardrock.bet - can't find info in API requests, hidden?
+betMgM - API is hard to read
+caesars sportsbook - protected with WAF
+
+sport : NBA
