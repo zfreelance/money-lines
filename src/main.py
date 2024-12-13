@@ -7,6 +7,7 @@ import time
 import os
 import csv
 from typing import List, Dict
+from multiprocessing import freeze_support
 
 
 IS_HEADLESS = True # Hide automated Browser
@@ -142,6 +143,8 @@ def main():
         time.sleep(UPDATE_INTERVAL)
 
 if __name__ == '__main__':
+    freeze_support()
+
     while True:
         try:
             main()
