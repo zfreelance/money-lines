@@ -123,7 +123,7 @@ def main():
     driver.get('https://app.hardrock.bet/')
 
     if not any(keyword in driver.title for keyword in SAFE_TITLES):
-        print(f"{Fore.RED}[!] Detected Abnormal Page Title {driver.title}. Exiting...{Style.RESET_ALL}")
+        print(f"{Fore.RED}[!] Detected Abnormal Page Title. {driver.title}. Your IP is maybe flagged. Exiting...{Style.RESET_ALL}")
         exit(1)
 
     # click nba button
@@ -142,10 +142,15 @@ def main():
         time.sleep(UPDATE_INTERVAL)
 
 if __name__ == '__main__':
-    try:
-        main()
-    except TimeoutException as e:
-        print(f"{Fore.RED}[!] Timed out. {e.msg}{Style.RESET_ALL}")
-        exit(1)
-    except NoSuchElementException as e:
-        print(f"{Fore.RED}[!] Failed to locate element. {e.msg}{Style.RESET_ALL}")
+    while True:
+        try:
+            main()
+        except TimeoutException as e:
+            print(f"{Fore.RED}[!] Timed out. {e.msg}{Style.RESET_ALL}")
+        except NoSuchElementException as e:
+            print(f"{Fore.RED}[!] Failed to locate element. {e.msg}{Style.RESET_ALL}")
+        except Exception as e:
+            print(f"{Fore.RED}[!] Error. {e.msg if hasattr(e, 'msg') else e}{Style.RESET_ALL}")
+
+        print(f"{Fore.YELLOW}[-] Trying again...{Style.RESET_ALL}")
+        time.sleep(1)
