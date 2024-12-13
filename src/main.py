@@ -112,7 +112,7 @@ def update_excel_events(driver):
 def main():
     print(f"{Fore.GREEN}[+] Launching Browser...{Style.RESET_ALL}")
 
-    driver = uc.Chrome(headless=IS_HEADLESS, use_subprocess=True)
+    driver = uc.Chrome(headless=IS_HEADLESS, use_subprocess=False)
     driver.implicitly_wait(10)
 
     # set state cookie
