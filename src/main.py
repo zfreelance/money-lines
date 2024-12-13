@@ -90,10 +90,10 @@ def update_excel_events(driver):
     for event in events_list:
         try:
             event_data = parseEvent(event)
+
+            events_data.append(event_data)
         except Exception as e:
             print(f"{Fore.RED}[!] Failed to parse event. Ignoring. {e}{Style.RESET_ALL}")
-
-        events_data.append(event_data)
 
     save_excel_file(events_data)
 
