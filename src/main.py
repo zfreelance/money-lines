@@ -3,10 +3,12 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 import time
 from selenium.webdriver.remote.webelement import WebElement
+from colorama import Fore, Style
 
 
 IS_HEADLESS = True # Hide automated Browser
 SAFE_TITLES = ["Hard Rock"] # list of titles page scraped should give
+UPDATE_INTERVAL = 10 # how often sportspage excel should be update (in Seconds)
 
 def parseEvent(event: WebElement):
     team_names_el = event.find_elements(By.CSS_SELECTOR, ".participants .show-for-medsmall")
@@ -42,8 +44,21 @@ def parseEvent(event: WebElement):
 
     return teams
 
+def update_excel(driver):
+    events_list = driver.find_elements(By.CSS_SELECTOR, 'div.events-group .column .hr-market-view')
+
+    print(f"{Fore.GREEN}[+] Events found: {len(events_list)}{Style.RESET_ALL}")
+
+    for event in events_list:
+        try:
+            data = parseEvent(event)
+        except Exception as e:
+            print(f"{Fore.RED}[!] Failed to parse event. Ignoring. {e}{Style.RESET_ALL}")
+
+        print(data)
+
 def main():
-    print("[+] Launching Browser...")
+    print(f"{Fore.GREEN}[+] Launching Browser...{Style.RESET_ALL}")
 
     driver = uc.Chrome(headless=IS_HEADLESS, use_subprocess=True)
     driver.implicitly_wait(10)
@@ -56,7 +71,7 @@ def main():
     driver.get('https://app.hardrock.bet/')
 
     if not any(keyword in driver.title for keyword in SAFE_TITLES):
-        print(f"[!] Detected Abnormal Page Title {driver.title}. Exiting...")
+        print(f"{Fore.RED}[!] Detected Abnormal Page Title {driver.title}. Exiting...{Style.RESET_ALL}")
         exit(1)
 
     # click nba button
@@ -67,29 +82,18 @@ def main():
     driver.execute_script("document.documentElement.style.zoom = \"0.1\";")
     time.sleep(1) # ensure all elements are still there
 
-    events_list = driver.find_elements(By.CSS_SELECTOR, 'div.events-group .column .hr-market-view')
+    while True:
+        update_excel(driver)
 
-    print(f"[+] Events found: {len(events_list)}")
+        print(f"{Fore.YELLOW}[-] Waiting {UPDATE_INTERVAL} seconds before updating excel again {Style.RESET_ALL}")
 
-    for event in events_list:
-        try:
-            data = parseEvent(event)
-        except Exception as e:
-            print("[!] Failed to parse event")
-
-        print(data)
-
-    print("Done.")
-
-    time.sleep(100)
-
-    driver.quit()
+        time.sleep(UPDATE_INTERVAL)
 
 if __name__ == '__main__':
     try:
         main()
     except TimeoutException as e:
-        print(f"[!] Timed out. {e.msg}")
+        print(f"{Fore.RED}[!] Timed out. {e.msg}{Style.RESET_ALL}")
         exit(1)
     except NoSuchElementException as e:
-        print(f"[!] Failed to locate element. {e.msg}")
+        print(f"{Fore.RED}[!] Failed to locate element. {e.msg}{Style.RESET_ALL}")
