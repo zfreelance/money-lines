@@ -5,6 +5,7 @@ from selenium.webdriver.remote.webelement import WebElement
 from colorama import Fore, Style
 import time
 import os
+import sys
 import csv
 from typing import List, Dict
 from multiprocessing import freeze_support
@@ -14,6 +15,16 @@ IS_HEADLESS = True # Hide automated Browser
 SAFE_TITLES = ["Hard Rock"] # list of titles page scraped should give
 UPDATE_INTERVAL = 10 # how often sportspage excel should be update (in Seconds)
 EXCEL_FILENAME = "../sportspage_nba.csv"
+
+def get_script_folder():
+    # path of main .py or .exe when converted with pyinstaller
+    if getattr(sys, 'frozen', False):
+        script_path = os.path.dirname(sys.executable)
+    else:
+        script_path = os.path.dirname(
+            os.path.abspath(sys.modules['__main__'].__file__)
+        )
+    return script_path
 
 def safe_find_element_text(event, selector_type, selector, default_text="?") -> str:
     """
@@ -68,7 +79,7 @@ def save_excel_file(events_data: List[List[Dict]]):
     """
     Save Data in Excel File
     """
-    file_path = os.path.join(os.path.dirname(__file__), EXCEL_FILENAME)
+    file_path = os.path.join(get_script_folder(), EXCEL_FILENAME)
 
     first_rows = [["Team Name","Spread","Total Points","Win"], []]
 
@@ -88,7 +99,7 @@ def save_excel_file(events_data: List[List[Dict]]):
         writer.writerows(first_rows)
         writer.writerows(excel_rows)
 
-    print(f"{Fore.GREEN}[+] Saved Excel file with sportspage{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}[+] Saved Excel file {file_path} with sportspage{Style.RESET_ALL}")
 
 def update_excel_events(driver):
     """
