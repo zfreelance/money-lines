@@ -14,6 +14,15 @@ SAFE_TITLES = ["Hard Rock"] # list of titles page scraped should give
 UPDATE_INTERVAL = 10 # how often sportspage excel should be update (in Seconds)
 EXCEL_FILENAME = "../sportspage_nba.csv"
 
+def safe_find_element_text(event, selector_type, selector, default_text="?") -> str:
+    """
+    Select text element with CSS selector. If not found return Default text
+    """
+    try:
+        return event.find_element(selector_type, selector).text
+    except NoSuchElementException:
+        return default_text
+
 def parseEvent(event: WebElement):
     """
     Parse event element
@@ -25,26 +34,29 @@ def parseEvent(event: WebElement):
     if len(team_names) != 2:
         raise Exception(f"Team names length isn't 2. {team_names}")
 
-    spread_bh = event.find_element(By.CSS_SELECTOR, "div[data-cy=\"wager-button:Spread BH\"] .selection-line-value").text
-    spread_ah = event.find_element(By.CSS_SELECTOR, "div[data-cy=\"wager-button:Spread AH\"] .selection-line-value").text
+    spread_bh = safe_find_element_text(event, By.CSS_SELECTOR, "div[data-cy=\"wager-button:Spread BH\"] .selection-line-value")
+    spread_ah = safe_find_element_text(event, By.CSS_SELECTOR, "div[data-cy=\"wager-button:Spread AH\"] .selection-line-value")
 
-    total_over = event.find_element(By.CSS_SELECTOR, "div[data-cy=\"wager-button:Total Points Over\"] .selection-line-value").text
-    total_under = event.find_element(By.CSS_SELECTOR, "div[data-cy=\"wager-button:Total Points Under\"] .selection-line-value").text
+    total_over = safe_find_element_text(event, By.CSS_SELECTOR, "div[data-cy=\"wager-button:Total Points Over\"] .selection-line-value")
+    total_under = safe_find_element_text(event, By.CSS_SELECTOR, "div[data-cy=\"wager-button:Total Points Under\"] .selection-line-value")
 
-    win_b = event.find_element(By.CSS_SELECTOR, "div[data-cy=\"wager-button:To Win B\"]").text
-    win_a = event.find_element(By.CSS_SELECTOR, "div[data-cy=\"wager-button:To Win A\"]").text
+    win_b = safe_find_element_text(event, By.CSS_SELECTOR, "div[data-cy=\"wager-button:To Win B\"]")
+    win_a = safe_find_element_text(event, By.CSS_SELECTOR, "div[data-cy=\"wager-button:To Win A\"]")
+
+    total_O_split = total_over.split(" ")
+    total_U_split = total_under.split(" ")
 
     teams = [
         {
             "team_name": team_names[0],
             "spread": spread_bh,
-            "total_pts": total_over.split(" ")[1],
+            "total_pts": total_O_split[1] if len(total_O_split) > 1 else total_over,
             "win": win_b
         },
         {
             "team_name": team_names[1],
             "spread": spread_ah,
-            "total_pts": total_under.split(" ")[1],
+            "total_pts": total_U_split[1] if len(total_U_split) > 1 else total_under,
             "win": win_a
         }
     ]
