@@ -93,7 +93,7 @@ def update_excel_events(driver):
 
             events_data.append(event_data)
         except Exception as e:
-            print(f"{Fore.RED}[!] Failed to parse event. Ignoring. {e}{Style.RESET_ALL}")
+            print(f"{Fore.RED}[!] Failed to parse event. Ignoring. {e.msg if hasattr(e, 'msg') else e} . Element InnerHTML {event.get_attribute('innerHTML')}{Style.RESET_ALL}")
 
     save_excel_file(events_data)
 
